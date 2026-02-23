@@ -1,8 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { User, Settings, Award, Calendar, ChevronRight, Heart, Bell } from 'lucide-react';
+import { User, Settings, Award, Calendar, ChevronRight, Heart, Bell, Edit2, Check } from 'lucide-react';
 
 export default function ProfileView() {
+  const [userName, setUserName] = useState('朋友');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState('');
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('userName');
+    if (savedName) {
+      setUserName(savedName);
+    }
+  }, []);
+
+  const handleSaveName = () => {
+    if (tempName.trim()) {
+      setUserName(tempName.trim());
+      localStorage.setItem('userName', tempName.trim());
+    }
+    setIsEditingName(false);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
@@ -15,7 +34,37 @@ export default function ProfileView() {
           <User className="w-10 h-10" />
         </div>
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-gray-900">李阿姨</h2>
+          {isEditingName ? (
+            <div className="flex items-center gap-2 mb-1">
+              <input
+                type="text"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                className="text-xl font-bold text-gray-900 border-b-2 border-emerald-500 focus:outline-none bg-transparent w-32"
+                autoFocus
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+              />
+              <button 
+                onClick={handleSaveName}
+                className="p-1 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 group mb-1">
+              <h2 className="text-xl font-bold text-gray-900">{userName}</h2>
+              <button 
+                onClick={() => {
+                  setTempName(userName);
+                  setIsEditingName(true);
+                }}
+                className="p-1 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+              >
+                <Edit2 className="w-3 h-3" />
+              </button>
+            </div>
+          )}
           <p className="text-sm text-gray-500 mb-2">樂活銀髮族會員</p>
           <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full w-max">
             <Award className="w-4 h-4" />

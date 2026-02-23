@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Activity, Flame, MapPin, Trophy } from 'lucide-react';
+import { Activity, Flame, MapPin, Trophy, Edit2, Check } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const data = [
@@ -18,6 +18,25 @@ export default function DashboardView() {
   const goalSteps = 7000;
   const progress = Math.min((currentSteps / goalSteps) * 100, 100);
 
+  const [userName, setUserName] = useState('朋友');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState('');
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('userName');
+    if (savedName) {
+      setUserName(savedName);
+    }
+  }, []);
+
+  const handleSaveName = () => {
+    if (tempName.trim()) {
+      setUserName(tempName.trim());
+      localStorage.setItem('userName', tempName.trim());
+    }
+    setIsEditingName(false);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
@@ -26,7 +45,40 @@ export default function DashboardView() {
     >
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">早安，李阿姨</h2>
+        <div className="flex items-center gap-2">
+          {isEditingName ? (
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-gray-900">早安，</h2>
+              <input
+                type="text"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                className="text-2xl font-bold text-gray-900 border-b-2 border-emerald-500 focus:outline-none bg-transparent w-32"
+                autoFocus
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+              />
+              <button 
+                onClick={handleSaveName}
+                className="p-1.5 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 group">
+              <h2 className="text-2xl font-bold text-gray-900">早安，{userName}</h2>
+              <button 
+                onClick={() => {
+                  setTempName(userName);
+                  setIsEditingName(true);
+                }}
+                className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
         <p className="text-gray-500 mt-1">今天天氣晴朗，適合出外走走！</p>
       </div>
 

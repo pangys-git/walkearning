@@ -16,6 +16,11 @@ export default function PoetryView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const savedName = localStorage.getItem('userName');
+    if (savedName) {
+      setUserName(savedName);
+    }
+    
     // Get current GPS location
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -180,7 +185,10 @@ export default function PoetryView() {
                 <input 
                   type="text" 
                   value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
+                  onChange={(e) => {
+                    setUserName(e.target.value);
+                    localStorage.setItem('userName', e.target.value);
+                  }}
                   placeholder="輸入你的名字"
                   className="w-full pl-9 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:outline-none bg-gray-50 text-sm"
                 />
