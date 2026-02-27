@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Camera, Sparkles, Loader2, Share2, MapPin, Save, PenTool, User } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
 
 export default function PoetryView() {
   const [loading, setLoading] = useState(false);
@@ -51,25 +50,27 @@ export default function PoetryView() {
   const generatePoetry = async () => {
     setLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      
-      const prompt = `
-        Role: 充滿文學氣息的詩人與作家
-        Task: 為位於 [${locationName}] 的用戶創作一首 [現代詩] 或 [短文]。
-        Context: 用戶剛完成散步，心情 [${mood}]。
-        Constraint: 內容需包含鼓勵運動與探索的元素，長度不超過 100 字。
-        請直接輸出創作內容，不需其他解釋。
-      `;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
+      const response = await fetch('/api/generate-poetry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          locationName,
+          mood
+        }),
       });
 
-      setContent(response.text || '無法生成內容，請稍後再試。');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate poetry');
+      }
+
+      const data = await response.json();
+      setContent(data.text || '無法生成內容，請稍後再試。');
     } catch (error) {
       console.error(error);
-      setContent('發生錯誤，請檢查網路連線或 API Key。');
+      setContent(error instanceof Error ? error.message : '發生錯誤，請檢查網路連線。');
     } finally {
       setLoading(false);
     }

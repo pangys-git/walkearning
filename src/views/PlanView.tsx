@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Map as MapIcon, Navigation, Sparkles, Loader2, Info } from 'lucide-react';
-import { GoogleGenAI, Type } from '@google/genai';
 import { GoogleMap, useJsApiLoader, Marker, DirectionsRenderer } from '@react-google-maps/api';
 
 const mapContainerStyle = {
@@ -62,54 +61,28 @@ export default function PlanView() {
     setRouteData(null);
     setDirections(null);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const prompt = `
-        你是一個專業的香港導遊與路線規劃專家。
-        請根據以下條件，為我規劃一條散步路線：
-        - 出發地：${preferences.start}
-        - 主題：${preferences.theme}
-        - 行動便利度：${preferences.mobility}
-        - 預計行走距離：約 ${distanceKm.toFixed(2)} 公里
-        - 預計時長：約 ${durationMin.toFixed(0)} 分鐘
-
-        請提供一條包含 3-5 個景點的路線，並回傳 JSON 格式。
-        必須包含精確的經緯度 (lat, lng)。
-      `;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              routeName: { type: Type.STRING, description: "路線名稱" },
-              description: { type: Type.STRING, description: "路線整體描述與注意事項" },
-              waypoints: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    name: { type: Type.STRING, description: "景點名稱" },
-                    lat: { type: Type.NUMBER, description: "緯度" },
-                    lng: { type: Type.NUMBER, description: "經度" },
-                    description: { type: Type.STRING, description: "景點特色介紹" }
-                  },
-                  required: ["name", "lat", "lng", "description"]
-                }
-              }
-            },
-            required: ["routeName", "description", "waypoints"]
-          }
-        }
+      const response = await fetch('/api/generate-route', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          preferences,
+          distanceKm,
+          durationMin
+        }),
       });
 
-      const data = JSON.parse(response.text || '{}') as RouteData;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate route');
+      }
+
+      const data = await response.json();
       setRouteData(data);
     } catch (error) {
       console.error(error);
-      alert('發生錯誤，請檢查網路連線或 API Key。');
+      alert(error instanceof Error ? error.message : '發生錯誤，請檢查網路連線。');
     } finally {
       setLoading(false);
     }

@@ -12,6 +12,7 @@ const tours = [
     rating: 4.8,
     image: 'https://picsum.photos/seed/tour1/600/400?blur=2',
     leader: '陳伯伯 (義工)',
+    link: 'https://forms.gle/dujABYxF4Bh8YQWu9',
   },
   {
     id: 2,
@@ -153,9 +154,20 @@ export default function ExploreView() {
                       </div>
                       <span className="text-sm text-gray-600">{tour.leader}</span>
                     </div>
-                    <button className="text-emerald-600 font-medium text-sm hover:text-emerald-700">
-                      查看詳情
-                    </button>
+                    {tour.link ? (
+                      <a 
+                        href={tour.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-600 font-medium text-sm hover:text-emerald-700"
+                      >
+                        報名參加
+                      </a>
+                    ) : (
+                      <button className="text-emerald-600 font-medium text-sm hover:text-emerald-700">
+                        查看詳情
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

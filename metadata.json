@@ -1,5 +1,5 @@
 {
-  "name": "遊學散步 (Walk & Learn)",
+  "name": "遊學散步Walkearning",
   "description": "結合 AI 智能路線規劃與生成式 AI 內容創作的健康散步 App。",
   "requestFramePermissions": [
     "geolocation",
