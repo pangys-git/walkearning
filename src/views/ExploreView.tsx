@@ -13,6 +13,7 @@ const tours = [
     image: 'https://picsum.photos/seed/tour1/600/400?blur=2',
     leader: '陳伯伯 (義工)',
     link: 'https://forms.gle/dujABYxF4Bh8YQWu9',
+    status: 'active'
   },
   {
     id: 2,
@@ -23,6 +24,7 @@ const tours = [
     rating: 4.9,
     image: 'https://picsum.photos/seed/tour2/600/400?blur=2',
     leader: '林老師 (生態專家)',
+    status: 'ended'
   },
   {
     id: 3,
@@ -33,6 +35,7 @@ const tours = [
     rating: 4.7,
     image: 'https://picsum.photos/seed/tour3/600/400?blur=2',
     leader: '張先生 (歷史系學生)',
+    status: 'ended'
   }
 ];
 
@@ -154,17 +157,21 @@ export default function ExploreView() {
                       </div>
                       <span className="text-sm text-gray-600">{tour.leader}</span>
                     </div>
-                    {tour.link ? (
+                    {tour.status === 'ended' ? (
+                      <span className="text-gray-400 font-medium text-sm bg-gray-100 px-3 py-1 rounded-lg">
+                        活動已完結
+                      </span>
+                    ) : tour.link ? (
                       <a 
                         href={tour.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-emerald-600 font-medium text-sm hover:text-emerald-700"
+                        className="text-emerald-600 font-medium text-sm hover:text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg"
                       >
                         報名參加
                       </a>
                     ) : (
-                      <button className="text-emerald-600 font-medium text-sm hover:text-emerald-700">
+                      <button className="text-emerald-600 font-medium text-sm hover:text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg">
                         查看詳情
                       </button>
                     )}

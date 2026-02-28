@@ -110,9 +110,14 @@ export default function ProfileView() {
           <p className="text-sm text-emerald-50 mb-4 opacity-90">
             分享你的私房路線，帶領社區朋友一起健康散步！
           </p>
-          <button className="bg-white text-emerald-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-emerald-50 transition-colors">
+          <a 
+            href="https://forms.gle/qDBsmixeEW4EuUx18"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-white text-emerald-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-emerald-50 transition-colors"
+          >
             了解詳情
-          </button>
+          </a>
         </div>
       </div>
     </motion.div>

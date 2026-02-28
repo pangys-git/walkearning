@@ -55,8 +55,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { user, content, photo, location, timestamp } = req.body;
 
       if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_SHEET_ID) {
-        console.warn('Google Sheets credentials not configured. Skipping sheet update.');
-        return res.status(200).json({ success: true, message: 'Saved locally (Google Sheets not configured)' });
+        return res.status(500).json({ 
+          success: false, 
+          error: '系統尚未設定 Google Sheets 憑證 (GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEET_ID)。請在 Vercel 設定這些環境變數。' 
+        });
       }
 
       const serviceAccountAuth = new JWT({

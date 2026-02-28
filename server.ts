@@ -69,9 +69,10 @@ async function startServer() {
 
       // Check if Google Sheets credentials are provided
       if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_SHEET_ID) {
-        // If not configured, just return success for demo purposes
-        console.warn('Google Sheets credentials not configured. Skipping sheet update.');
-        return res.json({ success: true, message: 'Saved locally (Google Sheets not configured)' });
+        return res.status(500).json({ 
+          success: false, 
+          error: '系統尚未設定 Google Sheets 憑證 (GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEET_ID)。請在 Vercel 設定這些環境變數。' 
+        });
       }
 
       // Initialize auth
