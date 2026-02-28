@@ -286,7 +286,7 @@ export default function PoetryView() {
             
             <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
               <div className="text-left">
-                <p className="text-xs text-gray-500">遊學散步 記錄</p>
+                <p className="text-xs text-gray-500">輕行計劃 記錄</p>
                 <p className="text-[10px] text-gray-400">{new Date().toLocaleDateString()}</p>
               </div>
               <div className="flex gap-2">

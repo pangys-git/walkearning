@@ -1,5 +1,5 @@
 {
-  "name": "遊學散步Walkearning",
+  "name": "輕行計劃",
   "description": "結合 AI 智能路線規劃與生成式 AI 內容創作的健康散步 App。",
   "requestFramePermissions": [
     "geolocation",

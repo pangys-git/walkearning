@@ -38,7 +38,7 @@ export default function App() {
     <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-900 max-w-md mx-auto shadow-2xl overflow-hidden relative">
       {/* Header */}
       <header className="bg-white px-6 py-4 shadow-sm z-10 sticky top-0">
-        <h1 className="text-xl font-bold text-emerald-700 tracking-tight">遊學散步</h1>
+        <h1 className="text-xl font-bold text-emerald-700 tracking-tight">輕行計劃</h1>
       </header>
 
       {/* Main Content Area */}

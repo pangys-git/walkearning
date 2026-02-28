@@ -1,99 +1,40 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { JWT } from 'google-auth-library';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const scriptUrl = process.env.GOOGLE_SCRIPT_URL;
+
+  if (!scriptUrl) {
+    return res.status(500).json({ 
+      success: false, 
+      error: '系統尚未設定 GOOGLE_SCRIPT_URL。請在 Vercel 設定此環境變數。' 
+    });
+  }
+
   if (req.method === 'GET') {
     try {
-      if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_SHEET_ID) {
-        return res.status(200).json({
-          success: true,
-          data: [
-            {
-              Timestamp: new Date().toISOString(),
-              User: '陳伯伯',
-              Content: '今天在維多利亞公園散步，微風徐徐，非常舒服。',
-              Photo: 'No photo',
-              Location: '香港維多利亞公園'
-            }
-          ]
-        });
-      }
-
-      const serviceAccountAuth = new JWT({
-        email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-      });
-
-      const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
-      await doc.loadInfo();
-      const sheet = doc.sheetsByIndex[0];
-      
-      if (!sheet) {
-        return res.status(200).json({ success: true, data: [] });
-      }
-
-      const rows = await sheet.getRows();
-      const data = rows.map(row => ({
-        Timestamp: row.get('Timestamp'),
-        User: row.get('User'),
-        Content: row.get('Content'),
-        Photo: row.get('Photo'),
-        Location: row.get('Location')
-      })).reverse();
-
-      return res.status(200).json({ success: true, data });
+      const response = await fetch(scriptUrl);
+      const data = await response.json();
+      return res.status(200).json(data);
     } catch (error: any) {
-      console.error('Error fetching from Google Sheets:', error);
-      return res.status(500).json({ success: false, error: 'Failed to fetch from Google Sheets' });
+      console.error('Error fetching from Google Script:', error);
+      return res.status(500).json({ success: false, error: 'Failed to fetch from Google Script' });
     }
   }
 
   if (req.method === 'POST') {
     try {
-      const { user, content, photo, location, timestamp } = req.body;
-
-      if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_SHEET_ID) {
-        return res.status(500).json({ 
-          success: false, 
-          error: '系統尚未設定 Google Sheets 憑證 (GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SHEET_ID)。請在 Vercel 設定這些環境變數。' 
-        });
-      }
-
-      const serviceAccountAuth = new JWT({
-        email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+      const response = await fetch(scriptUrl, {
+        method: 'POST',
+        body: JSON.stringify(req.body),
+        // Google Apps Script requires text/plain or it will preflight and fail sometimes, 
+        // but since we call it from backend (Node.js), application/json is fine, 
+        // though GAS handles postData.contents perfectly either way.
       });
-
-      const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
-      await doc.loadInfo();
-
-      let sheet = doc.sheetsByIndex[0];
-      
-      if (!sheet) {
-        sheet = await doc.addSheet({ headerValues: ['Timestamp', 'User', 'Content', 'Photo', 'Location'] });
-      } else {
-        try {
-          await sheet.loadHeaderRow();
-        } catch (e) {
-          await sheet.setHeaderRow(['Timestamp', 'User', 'Content', 'Photo', 'Location']);
-        }
-      }
-
-      await sheet.addRow({
-        Timestamp: timestamp,
-        User: user,
-        Content: content,
-        Photo: photo ? 'Photo attached' : 'No photo',
-        Location: location
-      });
-
-      return res.status(200).json({ success: true, message: 'Saved to Google Sheets' });
+      const data = await response.json();
+      return res.status(200).json(data);
     } catch (error: any) {
-      console.error('Error saving to Google Sheets:', error);
-      return res.status(500).json({ success: false, error: 'Failed to save to Google Sheets' });
+      console.error('Error saving to Google Script:', error);
+      return res.status(500).json({ success: false, error: 'Failed to save to Google Script' });
     }
   }
 
